@@ -1,0 +1,36 @@
+{
+  "name": "david-v1",
+  "version": "2.0.0",
+  "description": "DAVID V1 — DjamelBot Engine | Copyright © 2025 DJAMEL",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node David.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@dongdev/fca-unofficial": "*",
+    "axios": "^1.16.1",
+    "body-parser": "^1.20.5",
+    "chalk": "^4.1.2",
+    "express": "^4.22.2",
+    "fs-extra": "^11.3.5",
+    "gradient-string": "^2.0.2",
+    "moment-timezone": "^0.5.48",
+    "socket.io": "^4.8.3",
+    "yt-search": "^2.13.1",
+    "ytdl-core": "^4.11.5"
+  },
+  "author": "DJAMEL",
+  "license": "UNLICENSED",
+  "keywords": [
+    "facebook",
+    "messenger",
+    "bot",
+    "DAVID",
+    "DJAMEL",
+    "chatbot"
+  ]
+}
