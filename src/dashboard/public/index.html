@@ -46,7 +46,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-grad
 .status-pill.connecting .dot{background:var(--yellow);}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.85);}}
 /* ── Layout ── */
-.main{max-width:960px;margin:0 auto;padding:18px 14px;}
+.main{max-width:1000px;margin:0 auto;padding:18px 14px;}
 .card{background:var(--s1);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:0 4px 30px rgba(0,0,0,.4);}
 .card-title{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
 /* ── Bot Info ── */
@@ -79,9 +79,10 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-grad
 /* ── Forms ── */
 .form-group{margin-bottom:12px;}
 .form-group label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-textarea,input[type=text],input[type=password],input[type=number]{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;resize:vertical;transition:border-color .2s;}
-textarea:focus,input:focus{border-color:var(--blue);background:rgba(255,255,255,.08);}
-textarea.code{min-height:320px;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:12px;line-height:1.5;}
+textarea,input[type=text],input[type=password],input[type=number],select{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;resize:vertical;transition:border-color .2s;}
+textarea:focus,input:focus,select:focus{border-color:var(--blue);background:rgba(255,255,255,.08);}
+select option{background:#1c1c1e;color:#fff;}
+textarea.code{min-height:300px;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:12px;line-height:1.5;}
 .hint{font-size:11px;color:var(--t2);margin-top:4px;}
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:var(--r2);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;}
@@ -95,23 +96,43 @@ textarea.code{min-height:320px;font-family:'SF Mono','Fira Code',Consolas,monosp
 .btn-danger:hover:not(:disabled){filter:brightness(1.1);}
 .btn-ghost{background:var(--s1);color:var(--text);border:1px solid var(--bd);}
 .btn-ghost:hover:not(:disabled){background:var(--s2);}
+.btn-warn{background:rgba(255,214,10,.15);color:var(--yellow);border:1px solid rgba(255,214,10,.3);}
+.btn-warn:hover:not(:disabled){background:rgba(255,214,10,.25);}
 .btn-sm{padding:7px 13px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11px;}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+/* ── Search & Filter ── */
+.search-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.search-input{flex:1;min-width:160px;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);font-size:13px;padding:9px 12px;font-family:inherit;outline:none;transition:border-color .2s;}
+.search-input:focus{border-color:var(--blue);}
+.cat-filter{display:flex;gap:5px;flex-wrap:wrap;}
+.cat-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--t2);transition:all .15s;font-family:inherit;}
+.cat-btn:hover{background:var(--s2);}
+.cat-btn.active{background:var(--blue);color:#fff;border-color:transparent;}
 /* ── Commands grid ── */
-.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:9px;}
-.cmd-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:13px;cursor:pointer;transition:all .2s;}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px;}
+.cmd-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:13px;transition:all .2s;position:relative;}
 .cmd-card:hover{background:var(--s2);border-color:var(--blue);}
-.cmd-card .cn{font-size:14px;font-weight:700;color:var(--blue);}
-.cmd-card .cc{font-size:10px;color:var(--t2);text-transform:uppercase;margin-top:2px;}
-.cmd-card .cd{font-size:12px;color:var(--t2);margin-top:6px;}
+.cmd-card .cn{font-size:14px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:5px;}
+.cmd-card .cc{font-size:10px;color:var(--t2);text-transform:uppercase;margin-top:3px;}
+.cmd-card .cd{font-size:12px;color:var(--t2);margin-top:5px;line-height:1.4;}
+.cmd-card .c-aliases{font-size:10px;color:var(--t3);margin-top:4px;font-family:monospace;}
+.cmd-card .c-actions{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;}
 .cmd-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;margin-top:5px;}
 .role-2{background:rgba(10,132,255,.15);color:var(--blue);}
 .role-3{background:rgba(255,214,10,.15);color:var(--yellow);}
+.role-0{background:rgba(48,209,88,.15);color:var(--green);}
+.cmd-version{position:absolute;top:10px;left:10px;font-size:9px;color:var(--t3);}
 /* ── Code editor ── */
 .editor-panel{display:none;}
 .editor-panel.active{display:block;}
-.editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
 .editor-name{font-size:16px;font-weight:700;color:var(--blue);}
+/* ── Meta editor ── */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:500px){.meta-grid{grid-template-columns:1fr;}}
+.meta-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-end;}
+.meta-row .form-group{flex:1;margin-bottom:0;}
 /* ── Messages ── */
 .msg-log{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
 .msg-item{background:var(--s1);border-radius:9px;padding:8px 11px;font-size:12px;border-right:3px solid var(--blue);}
@@ -121,7 +142,7 @@ textarea.code{min-height:320px;font-family:'SF Mono','Fira Code',Consolas,monosp
 .log-box{background:#0a0a0f;border:1px solid var(--bd);border-radius:var(--r2);padding:12px;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:11px;line-height:1.6;height:400px;overflow-y:auto;color:#a0e0a0;}
 .log-box .log-line{word-break:break-all;}
 .log-box .log-ts{color:rgba(255,255,255,.3);margin-left:8px;}
-.log-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.log-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
 /* ── Protection ── */
 .prot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;}
 .prot-pill{display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:9px 11px;font-size:12px;font-weight:600;}
@@ -151,6 +172,35 @@ input:checked+.slider::before{transform:translateX(19px);}
 .section{margin-bottom:14px;}
 .logout-btn{background:transparent;border:none;color:var(--t2);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit;}
 .logout-btn:hover{color:var(--red);}
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+.modal-overlay.hidden{display:none;}
+.modal{background:#111;border:1px solid var(--bd);border-radius:20px;padding:24px;width:min(460px,94vw);max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{background:transparent;border:none;color:var(--t2);cursor:pointer;font-size:20px;padding:0 4px;font-family:inherit;}
+.modal-close:hover{color:var(--red);}
+/* ── Activation tab ── */
+.thread-selector{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;}
+.thread-selector .form-group{flex:1;min-width:180px;margin-bottom:0;}
+.thread-mode-pills{display:flex;gap:6px;margin-bottom:12px;}
+.mode-pill{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--t2);font-family:inherit;transition:all .15s;}
+.mode-pill.active-bl{background:rgba(255,69,58,.15);color:var(--red);border-color:rgba(255,69,58,.3);}
+.mode-pill.active-wl{background:rgba(48,209,88,.15);color:var(--green);border-color:rgba(48,209,88,.3);}
+.mode-pill:not(.active-bl):not(.active-wl):hover{background:var(--s2);}
+.act-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;}
+.act-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:background .2s;}
+.act-card:hover{background:var(--s2);}
+.act-card.disabled-cmd{opacity:.55;}
+.act-card .ac-name{font-size:13px;font-weight:700;color:var(--text);}
+.act-card .ac-cat{font-size:10px;color:var(--t2);margin-top:2px;}
+.act-card .ac-alias{font-size:10px;color:var(--t3);margin-top:2px;font-family:monospace;}
+.act-save-bar{position:sticky;bottom:0;background:rgba(0,0,0,.85);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);padding:12px 0;margin-top:12px;border-top:1px solid var(--bd);display:flex;gap:8px;align-items:center;}
+.thread-info-pill{background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:6px 12px;font-size:11px;color:var(--t2);}
+.thread-info-pill b{color:var(--text);}
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--t2);}
+.empty-state .es-icon{font-size:36px;margin-bottom:10px;}
+.empty-state p{font-size:13px;}
 </style>
 </head>
 <body>
@@ -217,6 +267,7 @@ input:checked+.slider::before{transform:translateX(19px);}
     <button class="tab active" data-tab="control">🎮 التحكم</button>
     <button class="tab" data-tab="cookies">🍪 الكوكيز</button>
     <button class="tab" data-tab="commands">📦 الأوامر</button>
+    <button class="tab" data-tab="activation">🎛 تفعيل الأوامر</button>
     <button class="tab" data-tab="editor">✏️ محرر الأوامر</button>
     <button class="tab" data-tab="protection">🛡 الحماية</button>
     <button class="tab" data-tab="settings">⚙️ الإعدادات</button>
@@ -224,7 +275,7 @@ input:checked+.slider::before{transform:translateX(19px);}
     <button class="tab" data-tab="logs">📋 السجلات</button>
   </div>
 
-  <!-- ─ Control ─────────────────────────────────────────────── -->
+  <!-- ─ Control ─────────────────────────────────────────── -->
   <div class="tab-pane active" id="tab-control">
     <div class="card section">
       <div class="card-title">التحكم بالبوت</div>
@@ -237,7 +288,7 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Cookies ────────────────────────────────────────────── -->
+  <!-- ─ Cookies ────────────────────────────────────────── -->
   <div class="tab-pane" id="tab-cookies">
     <div class="card">
       <div class="card-title">رفع الكوكيز — Cookie Upload</div>
@@ -253,26 +304,101 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Commands ───────────────────────────────────────────── -->
+  <!-- ─ Commands ───────────────────────────────────────── -->
   <div class="tab-pane" id="tab-commands">
     <div class="card">
       <div class="card-title">قائمة الأوامر — <span id="cmdTotal">0</span> أمر</div>
-      <div class="cmd-grid" id="cmdGrid"><div style="color:var(--t2);font-size:13px;">جاري التحميل…</div></div>
+      <div class="search-bar">
+        <input class="search-input" id="cmd-search" type="text" placeholder="🔍 بحث في الأوامر…" oninput="filterCommands()">
+        <div class="cat-filter" id="cat-filter"></div>
+      </div>
+      <div class="cmd-grid" id="cmdGrid"><div class="empty-state"><div class="es-icon">📦</div><p>جاري التحميل…</p></div></div>
     </div>
   </div>
 
-  <!-- ─ Editor ────────────────────────────────────────────── -->
+  <!-- ─ Activation ─────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-activation">
+    <div class="card section">
+      <div class="card-title">🎛 تفعيل / تعطيل الأوامر لكل غروب</div>
+      <p style="font-size:12px;color:var(--t2);margin-bottom:14px;">يمكنك تحديد الأوامر المسموح بها أو المحظورة لكل غروب على حدة. البلاك‌ليست تعطّل المحدد فقط، والوايت‌ليست تُفعّل المحدد فقط.</p>
+      <div class="thread-selector">
+        <div class="form-group">
+          <label>اختر غروب أو أدخل Thread ID</label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="act-tid" placeholder="Thread ID مثل: 12345678" style="flex:1;">
+            <button class="btn btn-ghost btn-sm" onclick="loadThreadsForAct()">📋 قائمة الغروبات</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-bottom:0;align-self:flex-end;" onclick="loadActConfig()">تحميل</button>
+      </div>
+      <div id="threads-list-act" style="display:none;margin-bottom:12px;"></div>
+      <div id="act-content" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div class="thread-info-pill"><b>الغروب:</b> <span id="act-tid-display">—</span></div>
+          </div>
+          <div class="thread-mode-pills">
+            <button class="mode-pill" id="mode-bl" onclick="setActMode('blacklist')">⛔ تعطيل المحدد</button>
+            <button class="mode-pill" id="mode-wl" onclick="setActMode('whitelist')">✅ تفعيل المحدد فقط</button>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;font-size:12px;color:var(--t2);" id="act-mode-hint"></div>
+        <div class="act-grid" id="actGrid"></div>
+        <div class="act-save-bar">
+          <button class="btn btn-primary" onclick="saveActConfig()">💾 حفظ الإعدادات</button>
+          <button class="btn btn-danger btn-sm" onclick="resetActConfig()">🗑 إعادة تعيين (تفعيل الكل)</button>
+          <span style="font-size:11px;color:var(--t2);" id="act-save-hint"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─ Editor ────────────────────────────────────────── -->
   <div class="tab-pane" id="tab-editor">
     <div class="card section">
       <div class="card-title">محرر الأوامر المباشر (Hot-Reload)</div>
-      <p style="font-size:12px;color:var(--t2);margin-bottom:12px;">اختر أمراً ثم عدّل كوده وسيُحدَّث في البوت فوراً بدون إعادة تشغيل.</p>
       <div class="form-group">
         <label>اختر الأمر</label>
-        <select id="editor-select" onchange="loadCmdSource()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);padding:10px 12px;font-size:13px;outline:none;font-family:inherit;">
+        <select id="editor-select" onchange="onEditorSelectChange()">
           <option value="">— اختر أمراً —</option>
         </select>
       </div>
     </div>
+
+    <div class="editor-panel card section" id="editor-meta-panel">
+      <div class="card-title">✏️ تعديل سريع للمعلومات</div>
+      <div class="meta-grid">
+        <div class="form-group">
+          <label>اسم الأمر الجديد (Rename)</label>
+          <input type="text" id="meta-name" placeholder="مثل: groupimage">
+        </div>
+        <div class="form-group">
+          <label>الوصف</label>
+          <input type="text" id="meta-desc" placeholder="وصف مختصر للأمر">
+        </div>
+        <div class="form-group">
+          <label>الاختصارات (aliases) مفصولة بفاصلة</label>
+          <input type="text" id="meta-aliases" placeholder="مثل: img, صورة, gcimg">
+        </div>
+        <div class="form-group">
+          <label>مستوى الصلاحية</label>
+          <select id="meta-role">
+            <option value="0">👤 الجميع (0)</option>
+            <option value="2" selected>🔑 أدمن (2)</option>
+            <option value="3">👑 مالك (3)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>طريقة الاستخدام (guide)</label>
+        <input type="text" id="meta-guide" placeholder="مثل: {pn} [نص] — تشغيل | {pn} off — إيقاف">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-warn btn-sm" id="btn-save-meta" onclick="saveCmdMeta()">⚡ تطبيق التغييرات الفورية</button>
+        <span style="font-size:11px;color:var(--t2);" id="meta-hint"></span>
+      </div>
+    </div>
+
     <div class="editor-panel card" id="editor-panel">
       <div class="editor-header">
         <div class="editor-name" id="editor-cmd-name">—</div>
@@ -286,7 +412,7 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Protection ─────────────────────────────────────────── -->
+  <!-- ─ Protection ─────────────────────────────────────── -->
   <div class="tab-pane" id="tab-protection">
     <div class="card">
       <div class="card-title">🛡 20 طبقة حماية — نشطة جميعها</div>
@@ -294,11 +420,10 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Settings ───────────────────────────────────────────── -->
+  <!-- ─ Settings ───────────────────────────────────────── -->
   <div class="tab-pane" id="tab-settings">
     <div class="card">
       <div class="card-title">الإعدادات العامة</div>
-
       <div class="settings-section">
         <div class="settings-section-title">معلومات البوت</div>
         <div class="form-group"><label>اسم البوت</label><input type="text" id="cfg-botName" value="DAVID V1"></div>
@@ -306,7 +431,6 @@ input:checked+.slider::before{transform:translateX(19px);}
         <div class="form-group"><label>معرف المالك (ownerID)</label><input type="text" id="cfg-ownerID" placeholder="100012345678"></div>
         <div class="form-group"><label>كلمة سر لوحة التحكم</label><input type="password" id="cfg-dashpwd" placeholder="الكلمة الحالية محفوظة"></div>
       </div>
-
       <div class="settings-section">
         <div class="settings-section-title">أنظمة الحماية</div>
         <div class="toggle-row"><div class="t-info"><div class="t-label">Stealth Mode</div><div class="t-desc">محاكاة تصفح بشري + تدوير UA</div></div><label class="switch"><input type="checkbox" id="cfg-stealth" checked><span class="slider"></span></label></div>
@@ -314,7 +438,6 @@ input:checked+.slider::before{transform:translateX(19px);}
         <div class="toggle-row"><div class="t-info"><div class="t-label">MQTT Health Check</div><div class="t-desc">إعادة الاتصال تلقائياً</div></div><label class="switch"><input type="checkbox" id="cfg-mqtt" checked><span class="slider"></span></label></div>
         <div class="toggle-row"><div class="t-info"><div class="t-label">Admin Only Mode</div><div class="t-desc">البوت يرد على الأدمن فقط</div></div><label class="switch"><input type="checkbox" id="cfg-adminonly"><span class="slider"></span></label></div>
       </div>
-
       <div class="btn-row">
         <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
         <button class="btn btn-ghost" onclick="loadSettings()">↩ إعادة تحميل</button>
@@ -323,7 +446,7 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Messages ────────────────────────────────────────────── -->
+  <!-- ─ Messages ────────────────────────────────────────── -->
   <div class="tab-pane" id="tab-messages">
     <div class="card">
       <div class="card-title">آخر الرسائل المستقبلة</div>
@@ -331,10 +454,10 @@ input:checked+.slider::before{transform:translateX(19px);}
     </div>
   </div>
 
-  <!-- ─ Live Logs ───────────────────────────────────────────── -->
+  <!-- ─ Live Logs ───────────────────────────────────────── -->
   <div class="tab-pane" id="tab-logs">
     <div class="card">
-      <div class="card-title">السجلات الحية — Live Logs (Railway/Replit)</div>
+      <div class="card-title">السجلات الحية</div>
       <div class="log-controls">
         <button class="btn btn-sm btn-ghost" onclick="toggleAutoScroll()" id="btn-autoscroll">🔒 Auto-scroll: تشغيل</button>
         <button class="btn btn-sm btn-ghost" onclick="clearLogs()">🗑 مسح</button>
@@ -350,25 +473,37 @@ input:checked+.slider::before{transform:translateX(19px);}
 
 <script>
 // ─── State ──────────────────────────────────────────────────────────────────
-let _token       = localStorage.getItem("david_token") || "";
-let _socket      = null;
-let _autoScroll  = true;
-let _logLines    = [];
+let _token      = localStorage.getItem("david_token") || "";
+let _socket     = null;
+let _autoScroll = true;
+let _logLines   = [];
+let _allCmds    = [];
+let _activeCat  = "all";
+let _actMode    = "blacklist";
+let _actSelected = new Set();
+let _actTid     = "";
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 async function doLogin() {
   const pwd = document.getElementById("pwd-input").value.trim();
   if (!pwd) return;
   const btn = document.querySelector(".login-btn");
+  const errEl = document.getElementById("login-err");
+  errEl.textContent = "";
   btn.disabled = true; btn.textContent = "⏳ جاري…";
-  const r = await apiFetch("/api/login", { method: "POST", body: JSON.stringify({ password: pwd }) }, false);
-  btn.disabled = false; btn.textContent = "🔓 دخول";
-  if (r.ok) {
-    _token = r.token;
-    localStorage.setItem("david_token", _token);
-    showApp();
-  } else {
-    document.getElementById("login-err").textContent = r.error || "كلمة السر خاطئة";
+  try {
+    const r = await apiFetch("/api/login", { method: "POST", body: JSON.stringify({ password: pwd }) }, false);
+    btn.disabled = false; btn.textContent = "🔓 دخول";
+    if (r && r.ok) {
+      _token = r.token;
+      localStorage.setItem("david_token", _token);
+      showApp();
+    } else {
+      errEl.textContent = (r && r.error) ? r.error : "كلمة السر خاطئة";
+    }
+  } catch(e) {
+    btn.disabled = false; btn.textContent = "🔓 دخول";
+    errEl.textContent = "خطأ في الاتصال: " + e.message;
   }
 }
 document.getElementById("pwd-input").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
@@ -382,8 +517,8 @@ async function logout() {
 
 async function checkAuth() {
   if (!_token) return false;
-  const r = await apiFetch("/api/auth-check", {}, false);
-  return r.ok;
+  const r = await apiFetch("/api/auth-check");
+  return r && r.ok;
 }
 
 async function showApp() {
@@ -400,29 +535,26 @@ async function showApp() {
 function initSocket() {
   if (_socket) _socket.disconnect();
   _socket = io({ query: { token: _token } });
-  _socket.on("connect",       () => {});
-  _socket.on("disconnect",    () => setStatus("offline", "انقطع الاتصال"));
-  _socket.on("bot-status",    d => onBotStatus(d));
-  _socket.on("stats-update",  d => renderStats(d));
-  _socket.on("log-line",      d => addLogLine(d));
-  _socket.on("log-history",   arr => { arr.forEach(addLogLine); });
-  _socket.on("command-updated", d => { toast(`✅ تم تحديث /${d.name} بدون إعادة تشغيل`, "success"); });
-  _socket.on("config-reloaded", () => toast("🔄 الإعدادات تم تحديثها", "success"));
-  _socket.on("pong-bot", d => toast(`🏓 Ping: ${Date.now() - d.ts}ms`, "success"));
+  _socket.on("connect",        () => {});
+  _socket.on("disconnect",     () => setStatus("offline", "انقطع الاتصال"));
+  _socket.on("bot-status",     d => onBotStatus(d));
+  _socket.on("stats-update",   d => renderStats(d));
+  _socket.on("log-line",       d => addLogLine(d));
+  _socket.on("log-history",    arr => { arr.forEach(addLogLine); });
+  _socket.on("command-updated",d => { toast(`✅ تم تحديث /${d.name}`, "success"); refreshCmdsIfOpen(); });
+  _socket.on("config-reloaded",() => toast("🔄 الإعدادات تم تحديثها", "success"));
+  _socket.on("pong-bot",       d => toast(`🏓 Ping: ${Date.now() - d.ts}ms`, "success"));
 }
 
 // ─── Status ──────────────────────────────────────────────────────────────────
 function onBotStatus(d) {
   const s = d.status || (d.online ? "online" : "offline");
-  setStatus(s, d.message || (s === "online" ? `متصل ✔` : "غير متصل"));
+  setStatus(s, d.message || (s === "online" ? "متصل ✔" : "غير متصل"));
   if (d.uid)     setText("botUID",  "UID: " + d.uid);
   if (d.botName) setText("botName", d.botName);
-  if (d.uid && s === "online")
-    setText("botStatus", `متصل ✔ — ${d.botName || "DAVID V1"}`);
-  else if (s === "connecting")
-    setText("botStatus", "جاري تسجيل الدخول…");
-  else if (s === "offline")
-    setText("botStatus", d.message || "غير متصل — ارفع الكوكيز");
+  if (d.uid && s === "online") setText("botStatus", `متصل ✔ — ${d.botName || "DAVID V1"}`);
+  else if (s === "connecting") setText("botStatus", "جاري تسجيل الدخول…");
+  else if (s === "offline")    setText("botStatus", d.message || "غير متصل — ارفع الكوكيز");
 }
 function setStatus(s, msg) {
   const pill = document.getElementById("statusPill");
@@ -452,9 +584,7 @@ function renderStats(d) {
   setText("s-ram",  d.memMB          || "—");
   if (d.botID)   setText("botUID",  "UID: " + d.botID);
   if (d.botName) setText("botName", d.botName);
-  if (d.online != null) {
-    if (d.online) setStatus("online", `متصل ✔`);
-  }
+  if (d.online != null && d.online) setStatus("online", "متصل ✔");
 }
 function setText(id, v) {
   const el = document.getElementById(id);
@@ -467,13 +597,20 @@ async function refreshStats() {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function apiFetch(url, opts = {}, useToken = true) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
   try {
     const h = { "Content-Type": "application/json", ...(opts.headers || {}) };
     if (useToken && _token) h["x-david-token"] = _token;
-    const r = await fetch(url, { ...opts, headers: h });
+    const r = await fetch(url, { ...opts, headers: h, signal: controller.signal });
+    clearTimeout(timer);
     if (r.status === 401) { showLoginAgain(); return { ok: false, error: "Unauthorized" }; }
     return await r.json();
-  } catch (e) { return { ok: false, error: e.message }; }
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") return { ok: false, error: "انتهت مهلة الاتصال" };
+    return { ok: false, error: e.message };
+  }
 }
 function showLoginAgain() {
   _token = ""; localStorage.removeItem("david_token");
@@ -489,7 +626,7 @@ async function uploadCookies() {
   const r = await apiFetch("/api/cookies", { method: "POST", body: JSON.stringify({ cookies: raw }) });
   btn.disabled = false; btn.textContent = "📤 رفع وتسجيل الدخول";
   if (r.ok) { toast(`✅ تم رفع ${r.count} كوكي — جاري تسجيل الدخول…`, "success"); setStatus("connecting","يتصل…"); }
-  else       toast("❌ " + (r.error || "فشل"), "error");
+  else toast("❌ " + (r.error || "فشل"), "error");
 }
 
 async function controlBot(action) {
@@ -500,40 +637,134 @@ async function controlBot(action) {
   if (btn) { btn.disabled = false; btn.textContent = action === "restart" ? "🔄 إعادة تشغيل البوت" : "⏹ إيقاف"; }
   if (r.ok) {
     if (action === "restart") { toast("🔄 جاري إعادة تشغيل البوت…", "warn"); setStatus("connecting","يعيد التشغيل…"); }
-    else                       toast("⏹ تم إيقاف البوت", "error");
+    else toast("⏹ تم إيقاف البوت", "error");
   } else toast("❌ " + (r.error || "فشل"), "error");
 }
-
 function pingBot() { if (_socket) _socket.emit("ping-bot"); }
 
-// ─── Commands ──────────────────────────────────────────────────────────────
+// ─── Commands ─────────────────────────────────────────────────────────────────
+const CAT_ICONS = { management:"⚙️", media:"🎵", info:"ℹ️", fun:"😄", other:"📌" };
+const CAT_NAMES = { management:"إدارة", media:"وسائط", info:"معلومات", fun:"ترفيه", other:"أخرى" };
+
 async function loadCommands() {
-  const r    = await apiFetch("/api/commands");
+  const r = await apiFetch("/api/commands");
+  if (!r.ok) return;
+  _allCmds = r.commands || [];
+  setText("cmdTotal", _allCmds.length);
+  buildCatFilter();
+  renderCmdGrid(_allCmds);
+  populateEditorSelect(_allCmds);
+  return _allCmds;
+}
+
+function buildCatFilter() {
+  const cats = ["all", ...new Set(_allCmds.map(c => c.category || "other"))];
+  const el = document.getElementById("cat-filter");
+  el.innerHTML = cats.map(cat => {
+    const label = cat === "all" ? "الكل" : (CAT_NAMES[cat] || cat);
+    const icon = cat === "all" ? "📋" : (CAT_ICONS[cat] || "📌");
+    return `<button class="cat-btn ${cat === _activeCat ? "active" : ""}" onclick="setCat('${cat}')">${icon} ${label}</button>`;
+  }).join("");
+}
+
+function setCat(cat) {
+  _activeCat = cat;
+  buildCatFilter();
+  filterCommands();
+}
+
+function filterCommands() {
+  const q = (document.getElementById("cmd-search")?.value || "").toLowerCase().trim();
+  const filtered = _allCmds.filter(c => {
+    const inCat = _activeCat === "all" || (c.category || "other") === _activeCat;
+    if (!inCat) return false;
+    if (!q) return true;
+    return c.name.includes(q) ||
+           (c.description || "").toLowerCase().includes(q) ||
+           (c.aliases || []).some(a => String(a).toLowerCase().includes(q));
+  });
+  renderCmdGrid(filtered);
+}
+
+function renderCmdGrid(cmds) {
   const grid = document.getElementById("cmdGrid");
-  const tot  = document.getElementById("cmdTotal");
-  if (!r.ok || !grid) return;
-  const cmds = r.commands || [];
-  if (tot) tot.textContent = cmds.length;
-  if (!cmds.length) { grid.innerHTML = '<p style="color:var(--t2);font-size:13px;">لا توجد أوامر</p>'; return; }
-  grid.innerHTML = cmds.map(c => `
-    <div class="cmd-card" onclick="openEditorFor('${c.name}')">
-      <div class="cn">/${c.name}</div>
-      <div class="cc">${esc(c.category)}</div>
-      <div class="cd">${esc(c.description||"").slice(0,50)}</div>
-      <span class="cmd-badge ${c.role>=3?'role-3':'role-2'}">${c.role>=3?"👑 Owner":"🔑 Admin"}</span>
-    </div>`).join("");
-  // Populate editor select
-  const sel = document.getElementById("editor-select");
-  sel.innerHTML = '<option value="">— اختر أمراً —</option>' +
-    cmds.map(c => `<option value="${c.name}">/${c.name}</option>`).join("");
+  if (!cmds.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="es-icon">🔍</div><p>لا توجد أوامر تطابق البحث</p></div>';
+    return;
+  }
+  grid.innerHTML = cmds.map(c => {
+    const roleClass = c.role >= 3 ? "role-3" : c.role >= 2 ? "role-2" : "role-0";
+    const roleLabel = c.role >= 3 ? "👑 Owner" : c.role >= 2 ? "🔑 Admin" : "👤 الجميع";
+    const catIcon   = CAT_ICONS[c.category || "other"] || "📌";
+    const aliases   = (c.aliases || []).filter(Boolean);
+    return `<div class="cmd-card">
+      <div class="cmd-version">v${c.version || "1.0"}</div>
+      <div class="cn">${catIcon} /${esc(c.name)}</div>
+      <div class="cc">${esc(CAT_NAMES[c.category] || c.category || "أخرى")}</div>
+      <div class="cd">${esc((c.description || "").slice(0,60))}</div>
+      ${aliases.length ? `<div class="c-aliases">/ ${aliases.slice(0,3).join(" / ")}</div>` : ""}
+      <span class="cmd-badge ${roleClass}">${roleLabel}</span>
+      <div class="c-actions">
+        <button class="btn btn-xs btn-ghost" onclick="openEditorFor('${c.name}')">✏️ تعديل</button>
+        <button class="btn btn-xs btn-primary" onclick="quickMetaFor('${c.name}')">⚡ سريع</button>
+        <button class="btn btn-xs btn-ghost" onclick="copyName('${c.name}')">📋</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function copyName(name) {
+  navigator.clipboard?.writeText("/" + name).then(() => toast(`📋 نسخ: /${name}`, "success")).catch(() => toast("/" + name, "success"));
+}
+
+function refreshCmdsIfOpen() {
+  const tab = document.querySelector('[data-tab="commands"]');
+  if (tab?.classList.contains("active") || document.getElementById("tab-commands")?.classList.contains("active")) {
+    loadCommands();
+  }
 }
 
 // ─── Editor ──────────────────────────────────────────────────────────────────
+function populateEditorSelect(cmds) {
+  const sel = document.getElementById("editor-select");
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— اختر أمراً —</option>' +
+    cmds.map(c => `<option value="${c.name}">${CAT_ICONS[c.category||"other"] || "📌"} /${c.name}</option>`).join("");
+  if (cur && cmds.find(c => c.name === cur)) sel.value = cur;
+}
+
 function openEditorFor(name) {
   document.querySelector('[data-tab="editor"]').click();
   document.getElementById("editor-select").value = name;
+  onEditorSelectChange();
+}
+
+function quickMetaFor(name) {
+  document.querySelector('[data-tab="editor"]').click();
+  document.getElementById("editor-select").value = name;
+  onEditorSelectChange();
+  setTimeout(() => document.getElementById("meta-name")?.focus(), 300);
+}
+
+function onEditorSelectChange() {
+  const name = document.getElementById("editor-select").value;
+  if (!name) {
+    document.getElementById("editor-meta-panel").classList.remove("active");
+    document.getElementById("editor-panel").classList.remove("active");
+    return;
+  }
+  const cmd = _allCmds.find(c => c.name === name);
+  if (cmd) {
+    document.getElementById("meta-name").value = cmd.name;
+    document.getElementById("meta-desc").value = cmd.description || "";
+    document.getElementById("meta-aliases").value = (cmd.aliases || []).filter(Boolean).join(", ");
+    document.getElementById("meta-role").value = String(cmd.role ?? 2);
+    document.getElementById("meta-hint").textContent = "";
+    document.getElementById("editor-meta-panel").classList.add("active");
+  }
   loadCmdSource();
 }
+
 async function loadCmdSource() {
   const name = document.getElementById("editor-select").value;
   if (!name) { document.getElementById("editor-panel").classList.remove("active"); return; }
@@ -542,9 +773,13 @@ async function loadCmdSource() {
   document.getElementById("editor-panel").classList.add("active");
   document.getElementById("editor-cmd-name").textContent = "/" + r.name;
   document.getElementById("editor-code").value = r.code;
+  const guide = r.code.match(/guide:\s*\{\s*en:\s*["']([^"']+)["']/)?.[1] || "";
+  document.getElementById("meta-guide").value = guide.replace(/\\n/g, "\n");
   document.getElementById("editor-hint").textContent = "";
 }
+
 async function reloadCmdSource() { await loadCmdSource(); toast("↩ تم إعادة تحميل الكود", "success"); }
+
 async function saveCmdSource() {
   const name = document.getElementById("editor-select").value;
   const code = document.getElementById("editor-code").value.trim();
@@ -553,10 +788,36 @@ async function saveCmdSource() {
   btn.disabled = true; btn.textContent = "⏳ حفظ…";
   const r = await apiFetch(`/api/commands/${name}/source`, { method: "POST", body: JSON.stringify({ code }) });
   btn.disabled = false; btn.textContent = "💾 حفظ وتطبيق";
+  if (r.ok) { toast(r.message || "✅ تم الحفظ", "success"); document.getElementById("editor-hint").textContent = r.message || "✅ تم التحديث"; loadCommands(); }
+  else toast("❌ " + r.error, "error");
+}
+
+async function saveCmdMeta() {
+  const name = document.getElementById("editor-select").value;
+  if (!name) { toast("اختر أمراً أولاً", "error"); return; }
+  const newName  = document.getElementById("meta-name").value.trim().toLowerCase();
+  const desc     = document.getElementById("meta-desc").value.trim();
+  const aliasRaw = document.getElementById("meta-aliases").value.trim();
+  const role     = parseInt(document.getElementById("meta-role").value) || 2;
+  const guide    = document.getElementById("meta-guide").value.trim();
+  const aliases  = aliasRaw ? aliasRaw.split(",").map(a => a.trim()).filter(Boolean) : [];
+
+  const btn = document.getElementById("btn-save-meta");
+  btn.disabled = true; btn.textContent = "⏳…";
+  const r = await apiFetch(`/api/commands/${name}/update-meta`, {
+    method: "POST",
+    body: JSON.stringify({ newName: newName !== name ? newName : undefined, aliases, description: desc, role, guide })
+  });
+  btn.disabled = false; btn.textContent = "⚡ تطبيق التغييرات الفورية";
   if (r.ok) {
-    toast(r.message || "✅ تم الحفظ", "success");
-    document.getElementById("editor-hint").textContent = r.message || "✅ تم التحديث بنجاح";
-  } else toast("❌ " + r.error, "error");
+    toast(r.message || "✅ تم التحديث", "success");
+    document.getElementById("meta-hint").textContent = r.message || "✅";
+    await loadCommands();
+    if (r.name && r.name !== name) { document.getElementById("editor-select").value = r.name; onEditorSelectChange(); }
+  } else {
+    toast("❌ " + r.error, "error");
+    document.getElementById("meta-hint").textContent = "❌ " + r.error;
+  }
 }
 
 // ─── Protection ──────────────────────────────────────────────────────────────
@@ -599,8 +860,8 @@ async function saveSettings() {
   if (dashPwd) body.dashboard = { password: dashPwd };
   const r = await apiFetch("/api/config", { method: "POST", body: JSON.stringify(body) });
   const hint = document.getElementById("settings-hint");
-  if (r.ok) { toast("✅ تم حفظ الإعدادات (بدون إعادة تشغيل)", "success"); if (hint) hint.textContent = "✅ تم الحفظ"; }
-  else       { toast("❌ " + (r.error || "فشل"), "error"); if (hint) hint.textContent = "❌ " + r.error; }
+  if (r.ok) { toast("✅ تم حفظ الإعدادات", "success"); if (hint) hint.textContent = "✅ تم الحفظ"; }
+  else { toast("❌ " + (r.error || "فشل"), "error"); if (hint) hint.textContent = "❌ " + r.error; }
 }
 function setVal(id,v)   { const e=document.getElementById(id); if(e)e.value=v; }
 function getVal(id)     { return document.getElementById(id)?.value||""; }
@@ -628,16 +889,16 @@ function addLogLine(d) {
   if (!box) return;
   const div = document.createElement("div");
   div.className = "log-line";
-  const ts  = new Date(d.ts).toTimeString().slice(0,8);
-  const colorLine = d.line.replace(/\[([^\]]+)\]/g, (_,g) => `<span style="color:#ffd166">[${g}]</span>`)
-                          .replace(/(✔|✅)/g, '<span style="color:#30D158">$1</span>')
-                          .replace(/(✘|❌|Error|error)/g, '<span style="color:#FF453A">$1</span>')
-                          .replace(/(⚠|warn|WARN)/g, '<span style="color:#FFD60A">$1</span>');
+  const ts = new Date(d.ts).toTimeString().slice(0,8);
+  const colorLine = d.line
+    .replace(/\[([^\]]+)\]/g, (_,g) => `<span style="color:#ffd166">[${g}]</span>`)
+    .replace(/(✔|✅)/g, '<span style="color:#30D158">$1</span>')
+    .replace(/(✘|❌|Error|error)/g, '<span style="color:#FF453A">$1</span>')
+    .replace(/(⚠|warn|WARN)/g, '<span style="color:#FFD60A">$1</span>');
   div.innerHTML = `<span class="log-ts">${ts}</span>${colorLine}`;
   box.appendChild(div);
   setText("log-count", _logLines.length + " سطر");
   if (_autoScroll) box.scrollTop = box.scrollHeight;
-  // keep max 500 DOM nodes
   while (box.children.length > 500) box.removeChild(box.firstChild);
 }
 function toggleAutoScroll() {
@@ -663,6 +924,116 @@ async function loadLogsHistory() {
   if (r.ok && r.logs) r.logs.forEach(addLogLine);
 }
 
+// ─── Activation Tab ───────────────────────────────────────────────────────────
+async function loadThreadsForAct() {
+  const r = await apiFetch("/api/threads");
+  const el = document.getElementById("threads-list-act");
+  if (!r.ok || !r.threads?.length) {
+    el.style.display = "block";
+    el.innerHTML = '<p style="font-size:12px;color:var(--t2);">لا توجد غروبات مسجلة بعد. أدخل Thread ID يدوياً.</p>';
+    return;
+  }
+  el.style.display = "block";
+  el.innerHTML = '<div style="font-size:11px;color:var(--t2);margin-bottom:6px;">اختر غروباً:</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+    r.threads.map(t =>
+      `<button class="btn btn-ghost btn-xs" onclick="selectActThread('${t.tid}','${esc(t.name)}')">
+        ${t.type === "group" ? "👥" : "💬"} ${esc(t.name.slice(0,25))}
+       </button>`
+    ).join("") + '</div>';
+}
+
+function selectActThread(tid, name) {
+  document.getElementById("act-tid").value = tid;
+  loadActConfig();
+}
+
+async function loadActConfig() {
+  const tid = document.getElementById("act-tid").value.trim();
+  if (!tid) { toast("أدخل Thread ID أولاً", "error"); return; }
+  _actTid = tid;
+  const [rCmds, rCfg] = await Promise.all([
+    _allCmds.length ? Promise.resolve({ ok: true, commands: _allCmds }) : apiFetch("/api/commands"),
+    apiFetch(`/api/thread-commands/${tid}`)
+  ]);
+  if (!rCmds.ok) { toast("❌ فشل تحميل الأوامر", "error"); return; }
+  _allCmds = rCmds.commands || _allCmds;
+  const cfg = rCfg.ok ? rCfg.config : { mode: "blacklist", commands: [] };
+  _actMode = cfg.mode || "blacklist";
+  _actSelected = new Set(cfg.commands || []);
+  setText("act-tid-display", tid);
+  setActMode(_actMode, false);
+  renderActGrid();
+  document.getElementById("act-content").style.display = "block";
+  toast("✅ تم تحميل إعدادات الغروب", "success");
+}
+
+function setActMode(mode, render = true) {
+  _actMode = mode;
+  document.getElementById("mode-bl").className = "mode-pill" + (mode === "blacklist" ? " active-bl" : "");
+  document.getElementById("mode-wl").className = "mode-pill" + (mode === "whitelist" ? " active-wl" : "");
+  const hint = document.getElementById("act-mode-hint");
+  if (mode === "blacklist") hint.textContent = "⛔ وضع التعطيل: الأوامر المحددة بالأحمر ستكون معطلة في هذا الغروب.";
+  else hint.textContent = "✅ وضع التفعيل: الأوامر المحددة بالأخضر فقط ستعمل في هذا الغروب.";
+  if (render) renderActGrid();
+}
+
+function renderActGrid() {
+  const grid = document.getElementById("actGrid");
+  if (!_allCmds.length) { grid.innerHTML = '<p style="color:var(--t2);font-size:13px;">جاري التحميل…</p>'; return; }
+  const seen = new Set();
+  grid.innerHTML = _allCmds.filter(c => {
+    if (seen.has(c.name)) return false; seen.add(c.name); return true;
+  }).map(c => {
+    const inList = _actSelected.has(c.name);
+    const isDisabled = (_actMode === "blacklist" && inList) || (_actMode === "whitelist" && !inList);
+    const catIcon = CAT_ICONS[c.category||"other"] || "📌";
+    const aliases = (c.aliases||[]).filter(Boolean).slice(0,2);
+    return `<div class="act-card ${isDisabled ? "disabled-cmd" : ""}" id="act-${c.name}">
+      <div>
+        <div class="ac-name">${catIcon} /${esc(c.name)}</div>
+        <div class="ac-cat">${esc(CAT_NAMES[c.category]||c.category||"أخرى")}</div>
+        ${aliases.length ? `<div class="ac-alias">/${aliases.join(" / ")}</div>` : ""}
+      </div>
+      <label class="switch" title="${isDisabled ? "معطّل" : "مفعّل"}">
+        <input type="checkbox" ${inList ? "checked" : ""} onchange="toggleActCmd('${c.name}',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>`;
+  }).join("");
+}
+
+function toggleActCmd(name, checked) {
+  if (checked) _actSelected.add(name);
+  else _actSelected.delete(name);
+  const card = document.getElementById("act-" + name);
+  if (!card) return;
+  const isDisabled = (_actMode === "blacklist" && _actSelected.has(name)) || (_actMode === "whitelist" && !_actSelected.has(name));
+  card.classList.toggle("disabled-cmd", isDisabled);
+}
+
+async function saveActConfig() {
+  if (!_actTid) { toast("اختر غروباً أولاً", "error"); return; }
+  const r = await apiFetch(`/api/thread-commands/${_actTid}`, {
+    method: "POST",
+    body: JSON.stringify({ mode: _actMode, commands: [..._actSelected] })
+  });
+  const hint = document.getElementById("act-save-hint");
+  if (r.ok) { toast(`✅ تم حفظ إعدادات الغروب ${_actTid}`, "success"); hint.textContent = "✅ تم الحفظ"; }
+  else { toast("❌ " + r.error, "error"); hint.textContent = "❌ " + r.error; }
+}
+
+async function resetActConfig() {
+  if (!_actTid) { toast("اختر غروباً أولاً", "error"); return; }
+  if (!confirm("هل تريد إعادة تعيين الغروب؟ سيتم تفعيل جميع الأوامر.")) return;
+  const r = await apiFetch(`/api/thread-commands/${_actTid}`, { method: "DELETE" });
+  if (r.ok) {
+    _actSelected = new Set(); _actMode = "blacklist";
+    setActMode("blacklist"); renderActGrid();
+    toast("✅ تم إعادة التعيين — جميع الأوامر مفعلة", "success");
+  } else toast("❌ " + r.error, "error");
+}
+
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 document.querySelectorAll(".tab").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -678,6 +1049,7 @@ document.querySelectorAll(".tab").forEach(btn => {
     if (t === "messages")   loadMessages();
     if (t === "logs")       loadLogsHistory();
     if (t === "editor")     loadCommands().then(() => {});
+    if (t === "activation") { if (!_allCmds.length) loadCommands(); }
   });
 });
 
@@ -690,7 +1062,7 @@ function toast(msg, type="") {
   c.appendChild(t);
   setTimeout(() => { t.style.opacity="0"; t.style.transition="opacity .3s"; setTimeout(()=>t.remove(),300); },3500);
 }
-function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 (async () => {
