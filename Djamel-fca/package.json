@@ -1,0 +1,8 @@
+{
+  "name": "djamel-fca",
+  "version": "1.0.0",
+  "description": "Djamel-fca — مكتبة Facebook Client Abstractions للـ DAVID V1. Copyright © DJAMEL.",
+  "main": "index.js",
+  "author": "DJAMEL",
+  "license": "MIT"
+}
