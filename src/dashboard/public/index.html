@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DAVID V1 — لوحة التحكم</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{
+  --bg:#000;--s1:rgba(255,255,255,.06);--s2:rgba(255,255,255,.10);--s3:rgba(255,255,255,.15);
+  --bd:rgba(255,255,255,.12);--text:#fff;--t2:rgba(255,255,255,.55);--t3:rgba(255,255,255,.35);
+  --blue:#0A84FF;--green:#30D158;--red:#FF453A;--yellow:#FFD60A;--purple:#BF5AF2;--cyan:#5AC8F5;--orange:#FF9F0A;
+  --blur:saturate(180%) blur(20px);--r:18px;--r2:12px;--r3:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(10,132,255,.18),transparent),radial-gradient(ellipse 60% 40% at 90% 110%,rgba(191,90,242,.15),transparent),#000;}
+::-webkit-scrollbar{width:3px;height:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:9px;}
+/* ── Login ── */
+#login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.95);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);}
+#login-screen.hidden{display:none;}
+.login-card{background:var(--s1);border:1px solid var(--bd);border-radius:24px;padding:40px 36px;width:min(380px,90vw);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.login-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--purple));display:inline-flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;margin-bottom:20px;box-shadow:0 0 30px rgba(10,132,255,.4);}
+.login-card h2{font-size:22px;font-weight:700;margin-bottom:6px;}
+.login-card p{font-size:13px;color:var(--t2);margin-bottom:28px;}
+.login-input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);font-size:15px;padding:12px 16px;outline:none;text-align:right;font-family:inherit;transition:border-color .2s;}
+.login-input:focus{border-color:var(--blue);}
+.login-btn{width:100%;margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 20px rgba(10,132,255,.4);}
+.login-btn:hover{filter:brightness(1.1);}
+.login-btn:active{transform:scale(.98);}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px;}
+/* ── Header ── */
+.header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(0,0,0,.75);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--bd);}
+.header-logo{display:flex;align-items:center;gap:12px;}
+.header-logo .icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;box-shadow:0 0 16px rgba(10,132,255,.35);}
+.header-logo h1{font-size:17px;font-weight:700;}
+.header-logo span{display:block;font-size:11px;color:var(--t2);}
+.status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;transition:all .3s;}
+.status-pill.online{background:rgba(48,209,88,.15);color:var(--green);}
+.status-pill.offline{background:rgba(255,69,58,.15);color:var(--red);}
+.status-pill.connecting{background:rgba(255,214,10,.15);color:var(--yellow);}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;animation:pulse 2s infinite;}
+.status-pill.online .dot{background:var(--green);}
+.status-pill.offline .dot{background:var(--red);animation:none;}
+.status-pill.connecting .dot{background:var(--yellow);}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.85);}}
+/* ── Layout ── */
+.main{max-width:960px;margin:0 auto;padding:18px 14px;}
+.card{background:var(--s1);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:0 4px 30px rgba(0,0,0,.4);}
+.card-title{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;}
+/* ── Bot Info ── */
+.bot-row{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.bot-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;flex-shrink:0;box-shadow:0 0 24px rgba(10,132,255,.35);}
+.bot-details h2{font-size:18px;font-weight:700;}
+.bot-details .bd-sub{font-size:12px;color:var(--t2);margin-top:3px;}
+.bot-details .bd-uid{font-size:11px;color:var(--t3);font-family:monospace;margin-top:2px;}
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:14px 10px;text-align:center;transition:transform .2s,background .2s;cursor:default;}
+.stat-card:hover{background:var(--s2);transform:translateY(-2px);}
+.stat-icon{font-size:18px;margin-bottom:5px;}
+.stat-value{font-size:24px;font-weight:700;line-height:1.1;}
+.stat-label{font-size:10px;color:var(--t2);margin-top:3px;font-weight:500;}
+.c-blue .stat-value{color:var(--blue);}  .c-green .stat-value{color:var(--green);}
+.c-purple .stat-value{color:var(--purple);} .c-yellow .stat-value{color:var(--yellow);}
+.c-cyan .stat-value{color:var(--cyan);}  .c-orange .stat-value{color:var(--orange);}
+.c-red .stat-value{color:var(--red);}    .c-pink .stat-value{color:#FF375F;}
+/* ── Tabs ── */
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:8px 15px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--s1);color:var(--t2);transition:all .2s;white-space:nowrap;font-family:inherit;}
+.tab:hover{background:var(--s2);}
+.tab.active{background:var(--blue);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(10,132,255,.4);}
+.tab-pane{display:none;animation:fadeIn .2s ease;}
+.tab-pane.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+/* ── Forms ── */
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+textarea,input[type=text],input[type=password],input[type=number]{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);font-size:13px;padding:10px 12px;font-family:inherit;outline:none;resize:vertical;transition:border-color .2s;}
+textarea:focus,input:focus{border-color:var(--blue);background:rgba(255,255,255,.08);}
+textarea.code{min-height:320px;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:12px;line-height:1.5;}
+.hint{font-size:11px;color:var(--t2);margin-top:4px;}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:var(--r2);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(10,132,255,.3);}
+.btn-primary:hover:not(:disabled){filter:brightness(1.1);}
+.btn-success{background:var(--green);color:#000;}
+.btn-success:hover:not(:disabled){filter:brightness(1.1);}
+.btn-danger{background:var(--red);color:#fff;box-shadow:0 4px 14px rgba(255,69,58,.3);}
+.btn-danger:hover:not(:disabled){filter:brightness(1.1);}
+.btn-ghost{background:var(--s1);color:var(--text);border:1px solid var(--bd);}
+.btn-ghost:hover:not(:disabled){background:var(--s2);}
+.btn-sm{padding:7px 13px;font-size:12px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+/* ── Commands grid ── */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:9px;}
+.cmd-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:13px;cursor:pointer;transition:all .2s;}
+.cmd-card:hover{background:var(--s2);border-color:var(--blue);}
+.cmd-card .cn{font-size:14px;font-weight:700;color:var(--blue);}
+.cmd-card .cc{font-size:10px;color:var(--t2);text-transform:uppercase;margin-top:2px;}
+.cmd-card .cd{font-size:12px;color:var(--t2);margin-top:6px;}
+.cmd-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;margin-top:5px;}
+.role-2{background:rgba(10,132,255,.15);color:var(--blue);}
+.role-3{background:rgba(255,214,10,.15);color:var(--yellow);}
+/* ── Code editor ── */
+.editor-panel{display:none;}
+.editor-panel.active{display:block;}
+.editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.editor-name{font-size:16px;font-weight:700;color:var(--blue);}
+/* ── Messages ── */
+.msg-log{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.msg-item{background:var(--s1);border-radius:9px;padding:8px 11px;font-size:12px;border-right:3px solid var(--blue);}
+.msg-body{color:var(--text);font-weight:500;}
+.msg-meta{color:var(--t2);font-size:10px;margin-top:2px;}
+/* ── Live Logs ── */
+.log-box{background:#0a0a0f;border:1px solid var(--bd);border-radius:var(--r2);padding:12px;font-family:'SF Mono','Fira Code',Consolas,monospace;font-size:11px;line-height:1.6;height:400px;overflow-y:auto;color:#a0e0a0;}
+.log-box .log-line{word-break:break-all;}
+.log-box .log-ts{color:rgba(255,255,255,.3);margin-left:8px;}
+.log-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+/* ── Protection ── */
+.prot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;}
+.prot-pill{display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--bd);border-radius:9px;padding:9px 11px;font-size:12px;font-weight:600;}
+.p-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2.5s infinite;}
+/* ── Toggle ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--bd);}
+.toggle-row:last-child{border-bottom:none;}
+.t-info .t-label{font-size:14px;font-weight:600;}
+.t-info .t-desc{font-size:12px;color:var(--t2);margin-top:2px;}
+.switch{position:relative;display:inline-block;width:46px;height:27px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.15);border-radius:27px;transition:.3s;}
+.slider::before{content:'';position:absolute;width:21px;height:21px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 2px 5px rgba(0,0,0,.3);}
+input:checked+.slider{background:var(--green);}
+input:checked+.slider::before{transform:translateX(19px);}
+/* ── Settings input group ── */
+.settings-section{margin-bottom:20px;}
+.settings-section-title{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+/* ── Toast ── */
+#toast-container{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none;}
+.toast{background:rgba(28,28,30,.96);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--bd);border-radius:14px;padding:10px 20px;font-size:13px;font-weight:600;color:#fff;animation:toastIn .3s ease;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+.toast.warn{border-color:var(--yellow);color:var(--yellow);}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+/* ── Section spacer ── */
+.section{margin-bottom:14px;}
+.logout-btn{background:transparent;border:none;color:var(--t2);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit;}
+.logout-btn:hover{color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">D</div>
+    <h2>DAVID V1</h2>
+    <p>أدخل كلمة السر للدخول للوحة التحكم</p>
+    <input class="login-input" id="pwd-input" type="password" placeholder="كلمة السر" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">🔓 دخول</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ═══ HEADER ════════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-logo">
+    <div class="icon">D</div>
+    <div>
+      <h1>DAVID V1</h1>
+      <span>DjamelBot Engine — By DJAMEL</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="status-pill offline" id="statusPill">
+      <div class="dot"></div>
+      <span id="statusText">غير متصل</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">خروج</button>
+  </div>
+</header>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Bot Info -->
+  <div class="card section">
+    <div class="bot-row">
+      <div class="bot-avatar">D</div>
+      <div class="bot-details">
+        <h2 id="botName">DAVID V1</h2>
+        <div class="bd-sub" id="botStatus">جاري التحميل…</div>
+        <div class="bd-uid" id="botUID"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid section">
+    <div class="stat-card c-blue"><div class="stat-icon">💬</div><div class="stat-value" id="s-msg">0</div><div class="stat-label">رسائل</div></div>
+    <div class="stat-card c-green"><div class="stat-icon">⚡</div><div class="stat-value" id="s-cmd">0</div><div class="stat-label">أوامر</div></div>
+    <div class="stat-card c-purple"><div class="stat-icon">👥</div><div class="stat-value" id="s-thr">0</div><div class="stat-label">غروبات</div></div>
+    <div class="stat-card c-yellow"><div class="stat-icon">👤</div><div class="stat-value" id="s-usr">0</div><div class="stat-label">مستخدمون</div></div>
+    <div class="stat-card c-cyan"><div class="stat-icon">⏱</div><div class="stat-value" id="s-up">—</div><div class="stat-label">وقت التشغيل</div></div>
+    <div class="stat-card c-orange"><div class="stat-icon">📦</div><div class="stat-value" id="s-ncmd">0</div><div class="stat-label">عدد الأوامر</div></div>
+    <div class="stat-card c-green"><div class="stat-icon">🛡</div><div class="stat-value">20</div><div class="stat-label">طبقات الحماية</div></div>
+    <div class="stat-card c-pink"><div class="stat-icon">💾</div><div class="stat-value" id="s-ram">—</div><div class="stat-label">RAM (MB)</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="control">🎮 التحكم</button>
+    <button class="tab" data-tab="cookies">🍪 الكوكيز</button>
+    <button class="tab" data-tab="commands">📦 الأوامر</button>
+    <button class="tab" data-tab="editor">✏️ محرر الأوامر</button>
+    <button class="tab" data-tab="protection">🛡 الحماية</button>
+    <button class="tab" data-tab="settings">⚙️ الإعدادات</button>
+    <button class="tab" data-tab="messages">📨 الرسائل</button>
+    <button class="tab" data-tab="logs">📋 السجلات</button>
+  </div>
+
+  <!-- ─ Control ─────────────────────────────────────────────── -->
+  <div class="tab-pane active" id="tab-control">
+    <div class="card section">
+      <div class="card-title">التحكم بالبوت</div>
+      <div class="btn-row">
+        <button class="btn btn-success" id="btn-restart" onclick="controlBot('restart')">🔄 إعادة تشغيل البوت</button>
+        <button class="btn btn-danger"  id="btn-stop"    onclick="controlBot('stop')">⏹ إيقاف</button>
+        <button class="btn btn-ghost"   onclick="refreshStats()">📊 تحديث</button>
+        <button class="btn btn-ghost"   onclick="pingBot()">🏓 Ping</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─ Cookies ────────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-cookies">
+    <div class="card">
+      <div class="card-title">رفع الكوكيز — Cookie Upload</div>
+      <div class="form-group">
+        <label>الكوكيز (JSON / c3c / Netscape / Header String)</label>
+        <textarea id="cookieInput" rows="7" placeholder='[{"key":"c_user","value":"..."},{"key":"xs","value":"..."}]&#10;أو: c_user=123; xs=abc&#10;أو: صيغة c3c JSON كاملة'></textarea>
+        <div class="hint">✅ يدعم JSON Array، c3c، Netscape، وصيغة key=value</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-upload-cookies" onclick="uploadCookies()">📤 رفع وتسجيل الدخول</button>
+        <button class="btn btn-ghost"   onclick="document.getElementById('cookieInput').value=''">🗑 مسح</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─ Commands ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-commands">
+    <div class="card">
+      <div class="card-title">قائمة الأوامر — <span id="cmdTotal">0</span> أمر</div>
+      <div class="cmd-grid" id="cmdGrid"><div style="color:var(--t2);font-size:13px;">جاري التحميل…</div></div>
+    </div>
+  </div>
+
+  <!-- ─ Editor ────────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-editor">
+    <div class="card section">
+      <div class="card-title">محرر الأوامر المباشر (Hot-Reload)</div>
+      <p style="font-size:12px;color:var(--t2);margin-bottom:12px;">اختر أمراً ثم عدّل كوده وسيُحدَّث في البوت فوراً بدون إعادة تشغيل.</p>
+      <div class="form-group">
+        <label>اختر الأمر</label>
+        <select id="editor-select" onchange="loadCmdSource()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:var(--r2);color:var(--text);padding:10px 12px;font-size:13px;outline:none;font-family:inherit;">
+          <option value="">— اختر أمراً —</option>
+        </select>
+      </div>
+    </div>
+    <div class="editor-panel card" id="editor-panel">
+      <div class="editor-header">
+        <div class="editor-name" id="editor-cmd-name">—</div>
+        <div class="btn-row">
+          <button class="btn btn-sm btn-ghost" onclick="reloadCmdSource()">↩ إعادة تحميل</button>
+          <button class="btn btn-sm btn-primary" id="btn-save-cmd" onclick="saveCmdSource()">💾 حفظ وتطبيق</button>
+        </div>
+      </div>
+      <textarea class="code" id="editor-code" placeholder="// كود الأمر هنا"></textarea>
+      <div class="hint" id="editor-hint"></div>
+    </div>
+  </div>
+
+  <!-- ─ Protection ─────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-protection">
+    <div class="card">
+      <div class="card-title">🛡 20 طبقة حماية — نشطة جميعها</div>
+      <div class="prot-grid" id="protGrid"></div>
+    </div>
+  </div>
+
+  <!-- ─ Settings ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-settings">
+    <div class="card">
+      <div class="card-title">الإعدادات العامة</div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">معلومات البوت</div>
+        <div class="form-group"><label>اسم البوت</label><input type="text" id="cfg-botName" value="DAVID V1"></div>
+        <div class="form-group"><label>Prefix (بادئة الأوامر)</label><input type="text" id="cfg-prefix" value="/" maxlength="3"></div>
+        <div class="form-group"><label>معرف المالك (ownerID)</label><input type="text" id="cfg-ownerID" placeholder="100012345678"></div>
+        <div class="form-group"><label>كلمة سر لوحة التحكم</label><input type="password" id="cfg-dashpwd" placeholder="الكلمة الحالية محفوظة"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">أنظمة الحماية</div>
+        <div class="toggle-row"><div class="t-info"><div class="t-label">Stealth Mode</div><div class="t-desc">محاكاة تصفح بشري + تدوير UA</div></div><label class="switch"><input type="checkbox" id="cfg-stealth" checked><span class="slider"></span></label></div>
+        <div class="toggle-row"><div class="t-info"><div class="t-label">Keep Alive</div><div class="t-desc">ping دوري للحفاظ على الجلسة</div></div><label class="switch"><input type="checkbox" id="cfg-keepalive" checked><span class="slider"></span></label></div>
+        <div class="toggle-row"><div class="t-info"><div class="t-label">MQTT Health Check</div><div class="t-desc">إعادة الاتصال تلقائياً</div></div><label class="switch"><input type="checkbox" id="cfg-mqtt" checked><span class="slider"></span></label></div>
+        <div class="toggle-row"><div class="t-info"><div class="t-label">Admin Only Mode</div><div class="t-desc">البوت يرد على الأدمن فقط</div></div><label class="switch"><input type="checkbox" id="cfg-adminonly"><span class="slider"></span></label></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+        <button class="btn btn-ghost" onclick="loadSettings()">↩ إعادة تحميل</button>
+      </div>
+      <div class="hint" id="settings-hint" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ─ Messages ────────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-messages">
+    <div class="card">
+      <div class="card-title">آخر الرسائل المستقبلة</div>
+      <div class="msg-log" id="msgLog"><div class="msg-item"><div class="msg-body" style="color:var(--t2)">لا توجد رسائل بعد…</div></div></div>
+    </div>
+  </div>
+
+  <!-- ─ Live Logs ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="tab-logs">
+    <div class="card">
+      <div class="card-title">السجلات الحية — Live Logs (Railway/Replit)</div>
+      <div class="log-controls">
+        <button class="btn btn-sm btn-ghost" onclick="toggleAutoScroll()" id="btn-autoscroll">🔒 Auto-scroll: تشغيل</button>
+        <button class="btn btn-sm btn-ghost" onclick="clearLogs()">🗑 مسح</button>
+        <button class="btn btn-sm btn-ghost" onclick="downloadLogs()">⬇ تحميل</button>
+        <span style="font-size:11px;color:var(--t2)" id="log-count">0 سطر</span>
+      </div>
+      <div class="log-box" id="logBox"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+<div id="toast-container"></div>
+
+<script>
+// ─── State ──────────────────────────────────────────────────────────────────
+let _token       = localStorage.getItem("david_token") || "";
+let _socket      = null;
+let _autoScroll  = true;
+let _logLines    = [];
+
+// ─── Login ──────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const pwd = document.getElementById("pwd-input").value.trim();
+  if (!pwd) return;
+  const btn = document.querySelector(".login-btn");
+  btn.disabled = true; btn.textContent = "⏳ جاري…";
+  const r = await apiFetch("/api/login", { method: "POST", body: JSON.stringify({ password: pwd }) }, false);
+  btn.disabled = false; btn.textContent = "🔓 دخول";
+  if (r.ok) {
+    _token = r.token;
+    localStorage.setItem("david_token", _token);
+    showApp();
+  } else {
+    document.getElementById("login-err").textContent = r.error || "كلمة السر خاطئة";
+  }
+}
+document.getElementById("pwd-input").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+async function logout() {
+  await apiFetch("/api/logout", { method: "POST" });
+  _token = ""; localStorage.removeItem("david_token");
+  if (_socket) { _socket.disconnect(); _socket = null; }
+  document.getElementById("login-screen").classList.remove("hidden");
+}
+
+async function checkAuth() {
+  if (!_token) return false;
+  const r = await apiFetch("/api/auth-check", {}, false);
+  return r.ok;
+}
+
+async function showApp() {
+  const ok = await checkAuth();
+  if (!ok) { _token = ""; localStorage.removeItem("david_token"); return; }
+  document.getElementById("login-screen").classList.add("hidden");
+  initSocket();
+  await refreshStats();
+  await loadSettings();
+  loadProtections();
+}
+
+// ─── Socket.io ───────────────────────────────────────────────────────────────
+function initSocket() {
+  if (_socket) _socket.disconnect();
+  _socket = io({ query: { token: _token } });
+  _socket.on("connect",       () => {});
+  _socket.on("disconnect",    () => setStatus("offline", "انقطع الاتصال"));
+  _socket.on("bot-status",    d => onBotStatus(d));
+  _socket.on("stats-update",  d => renderStats(d));
+  _socket.on("log-line",      d => addLogLine(d));
+  _socket.on("log-history",   arr => { arr.forEach(addLogLine); });
+  _socket.on("command-updated", d => { toast(`✅ تم تحديث /${d.name} بدون إعادة تشغيل`, "success"); });
+  _socket.on("config-reloaded", () => toast("🔄 الإعدادات تم تحديثها", "success"));
+  _socket.on("pong-bot", d => toast(`🏓 Ping: ${Date.now() - d.ts}ms`, "success"));
+}
+
+// ─── Status ──────────────────────────────────────────────────────────────────
+function onBotStatus(d) {
+  const s = d.status || (d.online ? "online" : "offline");
+  setStatus(s, d.message || (s === "online" ? `متصل ✔` : "غير متصل"));
+  if (d.uid)     setText("botUID",  "UID: " + d.uid);
+  if (d.botName) setText("botName", d.botName);
+  if (d.uid && s === "online")
+    setText("botStatus", `متصل ✔ — ${d.botName || "DAVID V1"}`);
+  else if (s === "connecting")
+    setText("botStatus", "جاري تسجيل الدخول…");
+  else if (s === "offline")
+    setText("botStatus", d.message || "غير متصل — ارفع الكوكيز");
+}
+function setStatus(s, msg) {
+  const pill = document.getElementById("statusPill");
+  const txt  = document.getElementById("statusText");
+  pill.className = "status-pill " + s;
+  txt.textContent = s === "online" ? "متصل" : s === "connecting" ? "يتصل…" : "غير متصل";
+  if (msg) setText("botStatus", msg);
+}
+
+// ─── Stats ───────────────────────────────────────────────────────────────────
+function fmtUptime(ms) {
+  if (!ms) return "—";
+  const s = Math.floor(ms/1000), m = Math.floor(s/60), h = Math.floor(m/60), d = Math.floor(h/24);
+  if (d) return `${d}ي ${h%24}س`;
+  if (h) return `${h}س ${m%60}د`;
+  if (m) return `${m}:${String(s%60).padStart(2,"0")}`;
+  return `${s}s`;
+}
+function renderStats(d) {
+  if (!d) return;
+  setText("s-msg",  d.totalMessages  || 0);
+  setText("s-cmd",  d.totalCommands  || 0);
+  setText("s-thr",  d.activeThreads  || 0);
+  setText("s-usr",  d.activeUsers    || 0);
+  setText("s-up",   fmtUptime(d.uptime));
+  setText("s-ncmd", d.commands       || 0);
+  setText("s-ram",  d.memMB          || "—");
+  if (d.botID)   setText("botUID",  "UID: " + d.botID);
+  if (d.botName) setText("botName", d.botName);
+  if (d.online != null) {
+    if (d.online) setStatus("online", `متصل ✔`);
+  }
+}
+function setText(id, v) {
+  const el = document.getElementById(id);
+  if (el && String(el.textContent) !== String(v)) el.textContent = v;
+}
+async function refreshStats() {
+  const d = await apiFetch("/api/stats");
+  if (d) renderStats(d);
+}
+
+// ─── API ─────────────────────────────────────────────────────────────────────
+async function apiFetch(url, opts = {}, useToken = true) {
+  try {
+    const h = { "Content-Type": "application/json", ...(opts.headers || {}) };
+    if (useToken && _token) h["x-david-token"] = _token;
+    const r = await fetch(url, { ...opts, headers: h });
+    if (r.status === 401) { showLoginAgain(); return { ok: false, error: "Unauthorized" }; }
+    return await r.json();
+  } catch (e) { return { ok: false, error: e.message }; }
+}
+function showLoginAgain() {
+  _token = ""; localStorage.removeItem("david_token");
+  document.getElementById("login-screen").classList.remove("hidden");
+}
+
+// ─── Actions ─────────────────────────────────────────────────────────────────
+async function uploadCookies() {
+  const raw = document.getElementById("cookieInput").value.trim();
+  if (!raw) { toast("اكتب الكوكيز أولاً", "error"); return; }
+  const btn = document.getElementById("btn-upload-cookies");
+  btn.disabled = true; btn.textContent = "⏳ جاري…";
+  const r = await apiFetch("/api/cookies", { method: "POST", body: JSON.stringify({ cookies: raw }) });
+  btn.disabled = false; btn.textContent = "📤 رفع وتسجيل الدخول";
+  if (r.ok) { toast(`✅ تم رفع ${r.count} كوكي — جاري تسجيل الدخول…`, "success"); setStatus("connecting","يتصل…"); }
+  else       toast("❌ " + (r.error || "فشل"), "error");
+}
+
+async function controlBot(action) {
+  if (action === "stop" && !confirm("⚠️ هل أنت متأكد من إيقاف البوت؟")) return;
+  const btn = document.getElementById(action === "restart" ? "btn-restart" : "btn-stop");
+  if (btn) { btn.disabled = true; btn.textContent = "⏳…"; }
+  const r = await apiFetch("/api/control", { method: "POST", body: JSON.stringify({ action }) });
+  if (btn) { btn.disabled = false; btn.textContent = action === "restart" ? "🔄 إعادة تشغيل البوت" : "⏹ إيقاف"; }
+  if (r.ok) {
+    if (action === "restart") { toast("🔄 جاري إعادة تشغيل البوت…", "warn"); setStatus("connecting","يعيد التشغيل…"); }
+    else                       toast("⏹ تم إيقاف البوت", "error");
+  } else toast("❌ " + (r.error || "فشل"), "error");
+}
+
+function pingBot() { if (_socket) _socket.emit("ping-bot"); }
+
+// ─── Commands ──────────────────────────────────────────────────────────────
+async function loadCommands() {
+  const r    = await apiFetch("/api/commands");
+  const grid = document.getElementById("cmdGrid");
+  const tot  = document.getElementById("cmdTotal");
+  if (!r.ok || !grid) return;
+  const cmds = r.commands || [];
+  if (tot) tot.textContent = cmds.length;
+  if (!cmds.length) { grid.innerHTML = '<p style="color:var(--t2);font-size:13px;">لا توجد أوامر</p>'; return; }
+  grid.innerHTML = cmds.map(c => `
+    <div class="cmd-card" onclick="openEditorFor('${c.name}')">
+      <div class="cn">/${c.name}</div>
+      <div class="cc">${esc(c.category)}</div>
+      <div class="cd">${esc(c.description||"").slice(0,50)}</div>
+      <span class="cmd-badge ${c.role>=3?'role-3':'role-2'}">${c.role>=3?"👑 Owner":"🔑 Admin"}</span>
+    </div>`).join("");
+  // Populate editor select
+  const sel = document.getElementById("editor-select");
+  sel.innerHTML = '<option value="">— اختر أمراً —</option>' +
+    cmds.map(c => `<option value="${c.name}">/${c.name}</option>`).join("");
+}
+
+// ─── Editor ──────────────────────────────────────────────────────────────────
+function openEditorFor(name) {
+  document.querySelector('[data-tab="editor"]').click();
+  document.getElementById("editor-select").value = name;
+  loadCmdSource();
+}
+async function loadCmdSource() {
+  const name = document.getElementById("editor-select").value;
+  if (!name) { document.getElementById("editor-panel").classList.remove("active"); return; }
+  const r = await apiFetch(`/api/commands/${name}/source`);
+  if (!r.ok) { toast("❌ " + r.error, "error"); return; }
+  document.getElementById("editor-panel").classList.add("active");
+  document.getElementById("editor-cmd-name").textContent = "/" + r.name;
+  document.getElementById("editor-code").value = r.code;
+  document.getElementById("editor-hint").textContent = "";
+}
+async function reloadCmdSource() { await loadCmdSource(); toast("↩ تم إعادة تحميل الكود", "success"); }
+async function saveCmdSource() {
+  const name = document.getElementById("editor-select").value;
+  const code = document.getElementById("editor-code").value.trim();
+  if (!name || !code) { toast("اختر أمراً وأضف الكود", "error"); return; }
+  const btn = document.getElementById("btn-save-cmd");
+  btn.disabled = true; btn.textContent = "⏳ حفظ…";
+  const r = await apiFetch(`/api/commands/${name}/source`, { method: "POST", body: JSON.stringify({ code }) });
+  btn.disabled = false; btn.textContent = "💾 حفظ وتطبيق";
+  if (r.ok) {
+    toast(r.message || "✅ تم الحفظ", "success");
+    document.getElementById("editor-hint").textContent = r.message || "✅ تم التحديث بنجاح";
+  } else toast("❌ " + r.error, "error");
+}
+
+// ─── Protection ──────────────────────────────────────────────────────────────
+const PROTS = [
+  "Stealth v2","Human Typing","Natural Presence","MQTT Health","Session Refresher",
+  "Keep Alive","Rate Limiter","Outgoing Throttle","Anti-Detection","Behavior Scheduler",
+  "Human Read Receipt","Scroll Simulator","Reaction Delay","Connection Jitter",
+  "Duplicate Guard","Anti-Flood","Anti-Spam","Typing Variator","UA Rotator","Universal Guard"
+];
+function loadProtections() {
+  const g = document.getElementById("protGrid");
+  if (!g) return;
+  g.innerHTML = PROTS.map((p,i) => `<div class="prot-pill" style="animation-delay:${i*25}ms"><div class="p-dot"></div><span>${p}</span></div>`).join("");
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  const r = await apiFetch("/api/config");
+  if (!r.ok) return;
+  const c = r.config;
+  setVal("cfg-botName",   c.botName   || "DAVID V1");
+  setVal("cfg-prefix",    c.prefix    || "/");
+  setVal("cfg-ownerID",   c.ownerID   || "");
+  setCheck("cfg-stealth",   c.stealth?.enable !== false);
+  setCheck("cfg-keepalive", c.keepAlive?.enable !== false);
+  setCheck("cfg-mqtt",      c.mqttHealthCheck?.enable !== false);
+  setCheck("cfg-adminonly", c.adminOnly?.enable === true);
+}
+async function saveSettings() {
+  const body = {
+    botName:  getVal("cfg-botName"),
+    prefix:   getVal("cfg-prefix"),
+    ownerID:  getVal("cfg-ownerID"),
+    stealth:         { enable: getCheck("cfg-stealth") },
+    keepAlive:       { enable: getCheck("cfg-keepalive") },
+    mqttHealthCheck: { enable: getCheck("cfg-mqtt") },
+    adminOnly:       { enable: getCheck("cfg-adminonly") },
+  };
+  const dashPwd = getVal("cfg-dashpwd").trim();
+  if (dashPwd) body.dashboard = { password: dashPwd };
+  const r = await apiFetch("/api/config", { method: "POST", body: JSON.stringify(body) });
+  const hint = document.getElementById("settings-hint");
+  if (r.ok) { toast("✅ تم حفظ الإعدادات (بدون إعادة تشغيل)", "success"); if (hint) hint.textContent = "✅ تم الحفظ"; }
+  else       { toast("❌ " + (r.error || "فشل"), "error"); if (hint) hint.textContent = "❌ " + r.error; }
+}
+function setVal(id,v)   { const e=document.getElementById(id); if(e)e.value=v; }
+function getVal(id)     { return document.getElementById(id)?.value||""; }
+function setCheck(id,v) { const e=document.getElementById(id); if(e)e.checked=!!v; }
+function getCheck(id)   { return !!document.getElementById(id)?.checked; }
+
+// ─── Messages ──────────────────────────────────────────────────────────────────
+async function loadMessages() {
+  const r = await apiFetch("/api/messages");
+  const el = document.getElementById("msgLog");
+  if (!r.ok || !el) return;
+  const msgs = r.messages || [];
+  if (!msgs.length) return;
+  el.innerHTML = msgs.map(m => {
+    const dt = new Date(m.ts).toLocaleTimeString("ar");
+    return `<div class="msg-item"><div class="msg-body">${esc(m.body)}</div><div class="msg-meta">${dt} — ${m.tid||""}</div></div>`;
+  }).join("");
+}
+
+// ─── Live Logs ────────────────────────────────────────────────────────────────
+function addLogLine(d) {
+  _logLines.push(d);
+  if (_logLines.length > 1000) _logLines.shift();
+  const box = document.getElementById("logBox");
+  if (!box) return;
+  const div = document.createElement("div");
+  div.className = "log-line";
+  const ts  = new Date(d.ts).toTimeString().slice(0,8);
+  const colorLine = d.line.replace(/\[([^\]]+)\]/g, (_,g) => `<span style="color:#ffd166">[${g}]</span>`)
+                          .replace(/(✔|✅)/g, '<span style="color:#30D158">$1</span>')
+                          .replace(/(✘|❌|Error|error)/g, '<span style="color:#FF453A">$1</span>')
+                          .replace(/(⚠|warn|WARN)/g, '<span style="color:#FFD60A">$1</span>');
+  div.innerHTML = `<span class="log-ts">${ts}</span>${colorLine}`;
+  box.appendChild(div);
+  setText("log-count", _logLines.length + " سطر");
+  if (_autoScroll) box.scrollTop = box.scrollHeight;
+  // keep max 500 DOM nodes
+  while (box.children.length > 500) box.removeChild(box.firstChild);
+}
+function toggleAutoScroll() {
+  _autoScroll = !_autoScroll;
+  const btn = document.getElementById("btn-autoscroll");
+  btn.textContent = `🔒 Auto-scroll: ${_autoScroll?"تشغيل":"إيقاف"}`;
+  if (_autoScroll) document.getElementById("logBox").scrollTop = document.getElementById("logBox").scrollHeight;
+}
+function clearLogs() {
+  _logLines = [];
+  document.getElementById("logBox").innerHTML = "";
+  setText("log-count","0 سطر");
+}
+async function downloadLogs() {
+  const text = _logLines.map(l => new Date(l.ts).toISOString() + " " + l.line).join("\n");
+  const a    = document.createElement("a");
+  a.href     = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
+  a.download = `david-logs-${Date.now()}.txt`;
+  a.click();
+}
+async function loadLogsHistory() {
+  const r = await apiFetch("/api/logs");
+  if (r.ok && r.logs) r.logs.forEach(addLogLine);
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    const pane = document.getElementById("tab-" + btn.dataset.tab);
+    if (pane) pane.classList.add("active");
+    const t = btn.dataset.tab;
+    if (t === "commands")   loadCommands();
+    if (t === "protection") loadProtections();
+    if (t === "settings")   loadSettings();
+    if (t === "messages")   loadMessages();
+    if (t === "logs")       loadLogsHistory();
+    if (t === "editor")     loadCommands().then(() => {});
+  });
+});
+
+// ─── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, type="") {
+  const c = document.getElementById("toast-container");
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity="0"; t.style.transition="opacity .3s"; setTimeout(()=>t.remove(),300); },3500);
+}
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+(async () => {
+  if (_token) {
+    const ok = await checkAuth();
+    if (ok) showApp();
+    else { _token=""; localStorage.removeItem("david_token"); }
+  }
+})();
+</script>
+</body>
+</html>
