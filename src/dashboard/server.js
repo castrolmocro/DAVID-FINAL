@@ -262,6 +262,95 @@ function startDashboard(port = 5000) {
     } catch (e) { res.json({ ok: false, error: e.message }); }
   });
 
+  // ── Thread command control ──────────────────────────────────────────────────
+  app.get("/api/thread-commands", auth, (_, res) => {
+    try {
+      const ctrl = require("../utils/cmdControl");
+      ctrl.reload();
+      res.json({ ok: true, data: ctrl.getAll() });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
+  app.get("/api/thread-commands/:tid", auth, (req, res) => {
+    try {
+      const ctrl = require("../utils/cmdControl");
+      res.json({ ok: true, config: ctrl.getThreadConfig(req.params.tid) });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
+  app.post("/api/thread-commands/:tid", auth, (req, res) => {
+    try {
+      const ctrl = require("../utils/cmdControl");
+      const { mode, commands: cmds } = req.body;
+      if (!["blacklist","whitelist"].includes(mode)) return res.json({ ok: false, error: "mode يجب أن يكون blacklist أو whitelist" });
+      ctrl.setThreadConfig(req.params.tid, { mode, commands: Array.isArray(cmds) ? cmds : [] });
+      res.json({ ok: true });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
+  app.delete("/api/thread-commands/:tid", auth, (req, res) => {
+    try {
+      const ctrl = require("../utils/cmdControl");
+      ctrl.resetThread(req.params.tid);
+      res.json({ ok: true });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
+  // ── Threads list (known threads from bot) ───────────────────────────────────
+  app.get("/api/threads", auth, (_, res) => {
+    try {
+      const threads = [];
+      const allData = global.GoatBot?.allThreadData || {};
+      for (const [tid, data] of Object.entries(allData)) {
+        threads.push({ tid, name: data?.threadName || data?.name || `غروب ${tid}`, type: data?.isGroup ? "group" : "dm" });
+      }
+      const ctrl = require("../utils/cmdControl");
+      const ctrlTids = ctrl.getAllThreads();
+      for (const tid of ctrlTids) {
+        if (!threads.find(t => t.tid === tid)) threads.push({ tid, name: `غروب ${tid}`, type: "group" });
+      }
+      res.json({ ok: true, threads });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
+  // ── Command quick-update (rename / aliases / description) ───────────────────
+  app.post("/api/commands/:name/update-meta", auth, (req, res) => {
+    const nameParam = req.params.name.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    const { newName, aliases, description, role, guide } = req.body;
+    const file = path.join(CMDS_DIR, `${nameParam}.js`);
+    if (!fs.existsSync(file)) return res.json({ ok: false, error: "الأمر غير موجود" });
+    try {
+      let code = fs.readFileSync(file, "utf8");
+      if (newName && newName !== nameParam) {
+        code = code.replace(/name:\s*["']([^"']+)["']/, `name: "${newName}"`);
+      }
+      if (Array.isArray(aliases)) {
+        code = code.replace(/aliases:\s*\[([^\]]*)\]/, `aliases: ${JSON.stringify(aliases)}`);
+      }
+      if (description) {
+        code = code.replace(/description:\s*["']([^"']*)["']/, `description: "${description.replace(/"/g,'\\"')}"`);
+      }
+      if (role !== undefined) {
+        code = code.replace(/role:\s*\d/, `role: ${parseInt(role) || 2}`);
+      }
+      if (guide) {
+        code = code.replace(/guide:\s*\{[^}]*\}/, `guide: { en: "${guide.replace(/"/g,'\\"').replace(/\n/g,'\\n')}" }`);
+      }
+      fs.writeFileSync(file, code, "utf8");
+      const absPath = require.resolve(file);
+      delete require.cache[absPath];
+      const cmd = require(file);
+      const finalName = (cmd?.config?.name || nameParam).toLowerCase();
+      if (global.GoatBot?.commands) {
+        if (newName && newName !== nameParam) global.GoatBot.commands.delete(nameParam);
+        global.GoatBot.commands.set(finalName, cmd);
+        if (cmd.config.aliases) for (const a of cmd.config.aliases||[]) if (a) global.GoatBot.commands.set(String(a).toLowerCase(), cmd);
+      }
+      if (_io) _io.emit("command-updated", { name: finalName });
+      res.json({ ok: true, name: finalName, message: `✅ تم تحديث /${finalName}` });
+    } catch (e) { res.json({ ok: false, error: e.message }); }
+  });
+
   // ── Messages log ─────────────────────────────────────────────────────────────
   app.get("/api/messages", auth, (_, res) => {
     res.json({ ok: true, messages: [...stats.msgLog].reverse().slice(0, 30) });
