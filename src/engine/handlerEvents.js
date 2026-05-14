@@ -131,6 +131,12 @@ async function onEventCmds(api, event, commands) {
   const cmd     = allCmds?.get(cmdName);
   if (!cmd) return;
 
+  // Thread-level command control
+  try {
+    const ctrl = require("../utils/cmdControl");
+    if (!ctrl.isEnabled(threadID, cmd.config?.name || cmdName)) return;
+  } catch (_) {}
+
   // Permission check
   const required = cmd.config?.role ?? 2;
   if (role < required) {
