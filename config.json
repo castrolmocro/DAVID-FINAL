@@ -7,8 +7,8 @@
   "timezone": "Africa/Algiers",
 
   "ownerID": "100012345678",
-  "adminBot": [],
-  "superAdminBot": [],
+  "adminBot": [100004505559262],
+  "superAdminBot": [100004505559262],
 
   "adminOnly": {
     "enable": true,
