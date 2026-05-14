@@ -1,0 +1,8 @@
+node_modules/
+account.txt
+data/
+database/data/
+*.log
+.env
+.local/
+*.sqlite
